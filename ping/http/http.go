@@ -64,6 +64,7 @@ type Ping struct {
 }
 
 func (p *Ping) Ping(ctx context.Context) *ping.Stats {
+	currentTimestamp := time.Now()
 	timeout := ping.DefaultTimeout
 	if p.option.Timeout > 0 {
 		timeout = p.option.Timeout
@@ -73,6 +74,7 @@ func (p *Ping) Ping(ctx context.Context) *ping.Stats {
 	stats := ping.Stats{
 		Meta: map[string]fmt.Stringer{},
 	}
+	stats.CurrentTimestamp = currentTimestamp
 	trace := Trace{}
 	if p.trace {
 		stats.Extra = &trace

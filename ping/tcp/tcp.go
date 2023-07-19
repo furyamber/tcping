@@ -35,6 +35,7 @@ type Ping struct {
 }
 
 func (p *Ping) Ping(ctx context.Context) *ping.Stats {
+	currentTimestamp := time.Now()
 	timeout := ping.DefaultTimeout
 	if p.option.Timeout > 0 {
 		timeout = p.option.Timeout
@@ -43,6 +44,7 @@ func (p *Ping) Ping(ctx context.Context) *ping.Stats {
 	defer cancel()
 
 	var stats ping.Stats
+	stats.CurrentTimestamp = currentTimestamp
 	var dnsStart time.Time
 	// trace dns query
 	ctx = httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{
@@ -74,6 +76,7 @@ func (p *Ping) Ping(ctx context.Context) *ping.Stats {
 	} else {
 		conn, err = p.dialer.DialContext(ctx, "tcp", fmt.Sprintf("%s:%d", p.host, p.port))
 	}
+
 	stats.Duration = time.Since(start)
 	if err != nil {
 		stats.Error = err

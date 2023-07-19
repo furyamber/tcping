@@ -93,13 +93,14 @@ func (target Target) String() string {
 }
 
 type Stats struct {
-	Connected   bool                    `json:"connected"`
-	Error       error                   `json:"error"`
-	Duration    time.Duration           `json:"duration"`
-	DNSDuration time.Duration           `json:"DNSDuration"`
-	Address     string                  `json:"address"`
-	Meta        map[string]fmt.Stringer `json:"meta"`
-	Extra       fmt.Stringer            `json:"extra"`
+	Connected        bool                    `json:"connected"`
+	Error            error                   `json:"error"`
+	Duration         time.Duration           `json:"duration"`
+	DNSDuration      time.Duration           `json:"DNSDuration"`
+	Address          string                  `json:"address"`
+	Meta             map[string]fmt.Stringer `json:"meta"`
+	Extra            fmt.Stringer            `json:"extra"`
+	CurrentTimestamp time.Time               `json:"current_timestamp"`
 }
 
 func (s *Stats) FormatMeta() string {
@@ -117,6 +118,7 @@ func (s *Stats) FormatMeta() string {
 			builder.WriteString(" ")
 		}
 	}
+	// fmt.Println("这里是meta,")
 	return builder.String()
 }
 
@@ -258,9 +260,9 @@ func (p *Pinger) logStats(stats *Stats) {
 	}
 
 	if stats.Error != nil {
-		_, _ = fmtutils.MultiFprintf(p.out, "Ping %s(%s) %s(%s) - time=%s dns=%s", p.url.String(), stats.Address, status, p.formatError(stats.Error), stats.Duration, stats.DNSDuration)
+		_, _ = fmtutils.MultiFprintf(p.out, "%s Ping %s(%s) %s(%s) - time=%s dns=%s", stats.CurrentTimestamp.Format("2006-01-02 15:04:05"), p.url.String(), stats.Address, status, p.formatError(stats.Error), stats.Duration, stats.DNSDuration)
 	} else {
-		_, _ = fmtutils.MultiFprintf(p.out, "Ping %s(%s) %s - time=%s dns=%s", p.url.String(), stats.Address, status, stats.Duration, stats.DNSDuration)
+		_, _ = fmtutils.MultiFprintf(p.out, "%s Ping %s(%s) %s - time=%s dns=%s", stats.CurrentTimestamp.Format("2006-01-02 15:04:05"), p.url.String(), stats.Address, status, stats.Duration, stats.DNSDuration)
 	}
 	if len(stats.Meta) > 0 {
 		_, _ = fmtutils.MultiFprintf(p.out, " %s", stats.FormatMeta())
