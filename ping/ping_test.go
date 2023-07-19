@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	tcping "github.com/cloverstd/tcping/ping"
+	"io"
 	"net/url"
 	"testing"
 	"time"
+
+	tcping "github.com/furyamber/tcping/ping"
 )
 
 type PingHandler func(ctx context.Context) *tcping.Stats
@@ -25,7 +27,7 @@ func (s String) String() string {
 func TestPinger(t *testing.T) {
 	u, _ := url.Parse("https://hui.lu")
 	var buf bytes.Buffer
-	pinger := tcping.NewPinger(&buf, u, PingHandler(func(ctx context.Context) *tcping.Stats {
+	pinger := tcping.NewPinger([]io.Writer{&buf}, u, PingHandler(func(ctx context.Context) *tcping.Stats {
 		return &tcping.Stats{
 			Address:     "127.0.0.1:443",
 			Connected:   true,

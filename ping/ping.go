@@ -15,6 +15,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/furyamber/tcping/pkg/utils/fmtutils"
 )
 
 var pinger = map[Protocol]Factory{}
@@ -122,12 +124,12 @@ type Ping interface {
 	Ping(ctx context.Context) *Stats
 }
 
-func NewPinger(out io.Writer, url *url.URL, ping Ping, interval time.Duration, counter int) *Pinger {
+func NewPinger(outs []io.Writer, url *url.URL, ping Ping, interval time.Duration, counter int) *Pinger {
 	return &Pinger{
 		stopC:    make(chan struct{}),
 		counter:  counter,
 		interval: interval,
-		out:      out,
+		out:      outs,
 		url:      url,
 		ping:     ping,
 	}
@@ -139,7 +141,7 @@ type Pinger struct {
 	stopOnce sync.Once
 	stopC    chan struct{}
 
-	out io.Writer
+	out []io.Writer
 
 	url *url.URL
 
@@ -207,7 +209,7 @@ Ping statistics %s
 Approximate trip times:
 	Minimum = %s, Maximum = %s, Average = %s`
 
-	_, _ = fmt.Fprintf(p.out, tpl, p.url.String(), p.total, p.total-p.failedTotal, p.failedTotal, p.minDuration, p.maxDuration, p.totalDuration/time.Duration(p.total))
+	_, _ = fmtutils.MultiFprintf(p.out, tpl, p.url.String(), p.total, p.total-p.failedTotal, p.failedTotal, p.minDuration, p.maxDuration, p.totalDuration/time.Duration(p.total))
 }
 
 func (p *Pinger) formatError(err error) string {
@@ -256,16 +258,16 @@ func (p *Pinger) logStats(stats *Stats) {
 	}
 
 	if stats.Error != nil {
-		_, _ = fmt.Fprintf(p.out, "Ping %s(%s) %s(%s) - time=%s dns=%s", p.url.String(), stats.Address, status, p.formatError(stats.Error), stats.Duration, stats.DNSDuration)
+		_, _ = fmtutils.MultiFprintf(p.out, "Ping %s(%s) %s(%s) - time=%s dns=%s", p.url.String(), stats.Address, status, p.formatError(stats.Error), stats.Duration, stats.DNSDuration)
 	} else {
-		_, _ = fmt.Fprintf(p.out, "Ping %s(%s) %s - time=%s dns=%s", p.url.String(), stats.Address, status, stats.Duration, stats.DNSDuration)
+		_, _ = fmtutils.MultiFprintf(p.out, "Ping %s(%s) %s - time=%s dns=%s", p.url.String(), stats.Address, status, stats.Duration, stats.DNSDuration)
 	}
 	if len(stats.Meta) > 0 {
-		_, _ = fmt.Fprintf(p.out, " %s", stats.FormatMeta())
+		_, _ = fmtutils.MultiFprintf(p.out, " %s", stats.FormatMeta())
 	}
-	_, _ = fmt.Fprint(p.out, "\n")
+	_, _ = fmtutils.MultiPrintf(p.out, "\n")
 	if stats.Extra != nil {
-		_, _ = fmt.Fprintf(p.out, " %s\n", strings.TrimSpace(stats.Extra.String()))
+		_, _ = fmtutils.MultiFprintf(p.out, " %s\n", strings.TrimSpace(stats.Extra.String()))
 	}
 }
 

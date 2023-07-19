@@ -2,9 +2,10 @@ package tcp_test
 
 import (
 	"context"
-	tcping "github.com/cloverstd/tcping/ping"
-	"github.com/cloverstd/tcping/ping/tcp"
 	"testing"
+
+	tcping "github.com/furyamber/tcping/ping"
+	"github.com/furyamber/tcping/ping/tcp"
 )
 
 func TestPing(t *testing.T) {

@@ -3,16 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/cloverstd/tcping/ping"
-	"github.com/cloverstd/tcping/ping/http"
-	"github.com/cloverstd/tcping/ping/tcp"
-	"github.com/spf13/cobra"
+	"io"
 	"net"
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"syscall"
+
+	"github.com/furyamber/tcping/ping"
+	"github.com/furyamber/tcping/ping/http"
+	"github.com/furyamber/tcping/ping/tcp"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -127,8 +130,17 @@ var rootCmd = cobra.Command{
 			cmd.Usage()
 			return
 		}
-
-		pinger := ping.NewPinger(os.Stdout, url, p, intervalDuration, counter)
+		var pinger *ping.Pinger
+		if runtime.GOOS == "linux" {
+			fi, err := os.Create("/tmp/ping_result")
+			if err != nil {
+				panic(err)
+			}
+			defer fi.Close()
+			pinger = ping.NewPinger([]io.Writer{os.Stdout, fi}, url, p, intervalDuration, counter)
+		} else {
+			pinger = ping.NewPinger([]io.Writer{os.Stdout}, url, p, intervalDuration, counter)
+		}
 		sigs = make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 		go pinger.Ping()

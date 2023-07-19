@@ -2,9 +2,10 @@ package http_test
 
 import (
 	"context"
-	tcping "github.com/cloverstd/tcping/ping"
-	"github.com/cloverstd/tcping/ping/http"
 	"testing"
+
+	tcping "github.com/furyamber/tcping/ping"
+	"github.com/furyamber/tcping/ping/http"
 )
 
 func TestPing(t *testing.T) {

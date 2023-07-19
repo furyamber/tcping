@@ -5,10 +5,11 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/cloverstd/tcping/ping"
 	"net"
 	"net/http/httptrace"
 	"time"
+
+	"github.com/furyamber/tcping/ping"
 )
 
 var _ ping.Ping = (*Ping)(nil)

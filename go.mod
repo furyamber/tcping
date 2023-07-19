@@ -1,4 +1,4 @@
-module github.com/cloverstd/tcping
+module github.com/furyamber/tcping
 
 go 1.18
 
